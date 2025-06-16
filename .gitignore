@@ -1,0 +1,21 @@
+# Go-specific ignores
+/bin/
+/pkg/
+/vendor/
+
+# IDEs
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+#environment variables
+*.env
+.env
+# Protobuf generated code (optional, if you want to ignore them)
+*.pb.go

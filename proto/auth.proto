@@ -1,11 +1,18 @@
 syntax = "proto3";
 
-package auth;
-option go_package = "github.com/RaymondAkachi/VAULT-API/proto/authpb";
+package proto;
+
+option go_package = "github.com/RaymondAkachi/VAULT-API/proto;authpb";
+
+service AuthService {
+  rpc Register (RegisterRequest) returns (AuthResponse);
+  rpc Login (LoginRequest) returns (AuthResponse);
+}
 
 message RegisterRequest {
-  string email = 1;
-  string password = 2;
+  string username = 1;
+  string email = 2;
+  string password = 3;
 }
 
 message LoginRequest {
@@ -14,10 +21,6 @@ message LoginRequest {
 }
 
 message AuthResponse {
-  string token = 1;
-}
-
-service AuthService {
-  rpc Register(RegisterRequest) returns (AuthResponse);
-  rpc Login(LoginRequest) returns (AuthResponse);
+  string message = 1;
+  string token = 2;
 }
