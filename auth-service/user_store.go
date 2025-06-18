@@ -3,46 +3,60 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
+	"log"
 
-	"golang.org/x/crypto/bcrypt"
+	db "github.com/RaymondAkachi/VAULT-API/auth-service/internal/database"
+	utils "github.com/RaymondAkachi/VAULT-API/auth-service/utils"
+	"github.com/google/uuid"
 )
 
 type User struct {
-	id int64 `db:"id"`
-	Username string `db:"username"`
-	Email string `db:"email"`
-	Password string `db:"password_hash"`
+    ID       int64
+    Username string
+    Email    string
+    Password string
 }
 
-func CreateUser(ctx context.Context, username, email, password string) error {
-	// Hashes password
+func CreateUser(ctx context.Context, username, email, password string) (db.User,error) {
+    // Hash password
+    hashedPassword, err := utils.HashPassword(password)
+    if err != nil {
+        return db.User{}, err
+    }
+    // query := `INSERT INTO users (username, email, password) VALUES ($1, $2, $3)`
+    // _, err = apiConfig.DB.Exec(query, username, email, string(hashedPassword))
+    params := db.CreateUserParams{
+        ID: uuid.New(),
+        Username: username,
+        Email:  email,
+        Password: hashedPassword,
+    }
 
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	if err != nil {
-		return err
+    user, err := queries.CreateUser(ctx, params)
+
+    if err != nil {
+        log.Fatalf("Could not create user: %v", err)
+        return db.User{}, err
+    }
+    
+    fmt.Println("User")
+
+    return user, err
+}
+
+func AuthenticateUser(ctx context.Context, email, password string) (db.User, error) {
+    // query := `SELECT password FROM users WHERE email=$1`
+    // err := conn.QueryRow(query, email).Scan(&hashedPassword)
+    // if err != nil {
+    //     return errors.New("user not found")
+    user, err:= queries.AuthenticateUser(ctx, email)
+    if err != nil {
+        return db.User{}, errors.New("user not found")
+    }
+	is_valid := utils.CheckPasswordHash(password, user.Password) 
+	if !is_valid {
+		return db.User{}, errors.New("invalid user password entered")
 	}
-	
-	query := `INSERT INTO user (username, email, password) VAULES ($1, $2, $3)`
-	_, err = DB.Exec(query, username, email, string(hashedPassword))
-	return err
-
+    return user, nil
 }
-
-func AuthenticateUser(email, password string) error {
-	var hashedPassword string
-	query := `SELECT password FROM users WHERE email=$1`
-	err := DB.QueryRow(query, email).Scan(&hashedPassword)
-	if err != nil {
-		return errors.New("user nor found")
-	}
-	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
-}
-
-// func FindUserByEmail(ctx context.Context, email string) (*User, error) {
-// 	var user User
-// 	err := DB.GetContext(ctx, &user, "SELECT * FROM users WHERE email=$1", email)
-// 	if err != nil {
-// 		return nil, errors.New("user not found")
-// 	}
-// 	return &user, nil
-// }

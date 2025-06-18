@@ -7,6 +7,21 @@ option go_package = "github.com/RaymondAkachi/VAULT-API/proto;authpb";
 service AuthService {
   rpc Register (RegisterRequest) returns (AuthResponse);
   rpc Login (LoginRequest) returns (AuthResponse);
+  rpc ValidateToken (TokenRequest) returns (ValidateTokenResponse);
+  rpc RefreshToken (RefreshRequest) returns (AuthResponse);
+}
+
+message TokenRequest {
+  string token = 1;
+}
+
+message RefreshRequest {
+  string refresh_token = 1;
+}
+
+message ValidateTokenResponse {
+  bool valid = 1;
+  string email = 2;
 }
 
 message RegisterRequest {
@@ -23,4 +38,5 @@ message LoginRequest {
 message AuthResponse {
   string message = 1;
   string token = 2;
+  string refresh_token = 3;
 }

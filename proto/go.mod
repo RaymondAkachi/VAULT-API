@@ -1,4 +1,4 @@
-module github.com/RaymondAkachi/VAULT-API
+module github.com/RaymondAkachi/VAULT-API/proto
 
 go 1.24.3
 

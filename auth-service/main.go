@@ -1,26 +1,32 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net"
 
+	authpb "github.com/RaymondAkachi/VAULT-API/proto"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 )
 
 
 func main() {
-
-
-	list, err := net.Listen("tcp", fmt.Sprintf(":d%", 9000))
+	InitDB()
+	lis, err := net.Listen("tcp", ":50051")
 	if err != nil {
-		log.Fatalf("Server refused to listen becuase of this reason: %v", err)
+		log.Fatalf("Failed to listen: %v", err)
 	}
 
-
 	grpcServer := grpc.NewServer()
+	authServer := &AuthServer{}
 
-	if err := grpcServer.Serve(list); err != nil {
-		log.Fatalf("failed to server %s", err)
+	authpb.RegisterAuthServiceServer(grpcServer, authServer)
+
+	// This enables reflection for Evans and other tools
+	reflection.Register(grpcServer)
+
+	log.Println("gRPC server running on port 50051...")
+	if err := grpcServer.Serve(lis); err != nil {
+		log.Fatalf("Failed to serve: %v", err)
 	}
 }

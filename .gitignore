@@ -19,3 +19,6 @@ Thumbs.db
 .env
 # Protobuf generated code (optional, if you want to ignore them)
 *.pb.go
+
+# All executables
+*.exe
